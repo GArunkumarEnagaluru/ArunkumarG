@@ -1,5 +1,6 @@
 import React from "react";
 import { Typography, Box, Grid, useTheme, Avatar, Container } from "@mui/material";
+import arunphoto from '../assets/arunphoto.jpg'
 
 const About = () => {
   const theme = useTheme();
@@ -94,10 +95,10 @@ const About = () => {
           >
             <Avatar
               alt="Arunkumar G"
-              src="https://via.placeholder.com/200"
+              src={arunphoto}
               sx={{
-                width: 200,
-                height: 200,
+                width: { xs: 350, md: 400 },
+                height: { xs: 350, md: 400 },
                 borderRadius: 2,
               }}
             />
