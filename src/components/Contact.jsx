@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // Add useEffect import
 import {
   Typography,
   Box,
@@ -7,7 +7,7 @@ import {
   Stack,
   Alert,
 } from "@mui/material";
-import axios from "axios";
+import api from '../api/axios';
 
 const Contact = () => {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
@@ -15,6 +15,17 @@ const Contact = () => {
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    let timer;
+    if (success || error) {
+      timer = setTimeout(() => {
+        setSuccess(false);
+        setError("");
+      }, 5000);
+    }
+    return () => clearTimeout(timer);
+  }, [success, error]);
 
   const validate = (fieldValues = formData) => {
     let temp = { ...errors };
@@ -34,7 +45,6 @@ const Contact = () => {
 
     setErrors({ ...temp });
 
-    // Check if all are empty strings (no errors)
     return Object.values(temp).every(x => x === "");
   };
 
@@ -42,7 +52,7 @@ const Contact = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     setError("");
-    if (touched[name]) validate({ [name]: value }); // live-validate if field has been touched
+    if (touched[name]) validate({ [name]: value });
   };
 
   const handleBlur = (e) => {
@@ -58,27 +68,42 @@ const Contact = () => {
     }
 
     try {
-      await axios.post("/api/send-email", formData);
+      await api.post("/api/send-email", formData);
       setSuccess(true);
       setFormData({ name: "", email: "", message: "" });
       setTouched({ name: false, email: false, message: false });
       setErrors({});
     } catch (err) {
-      console.log(err)
+      console.log(err);
       setError("Failed to send message. Please try again.");
     }
   };
 
   return (
-    <Box my={4}>
+    <Box my={4} sx={{ maxWidth: 650 }}>
       <Typography variant="h5" fontWeight="bold" gutterBottom>
         Contact Me
       </Typography>
 
       <Stack spacing={2}>
-        {success && <Alert severity="success">Message sent successfully!</Alert>}
-        {error && <Alert severity="error">{error}</Alert>}
+        {success && (
+          <Alert 
+            severity="success"
+            onClose={() => setSuccess(false)}
+          >
+            Message sent successfully!
+          </Alert>
+        )}
+        {error && (
+          <Alert 
+            severity="error"
+            onClose={() => setError("")}
+          >
+            {error}
+          </Alert>
+        )}
 
+        {/* Rest of your form fields remain the same */}
         <TextField
           label="Name"
           name="name"
